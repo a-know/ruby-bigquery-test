@@ -8,4 +8,7 @@ client = Google::APIClient.new(
   :application_version => '1.0.0'
 )
 
-p client
+# Initialize Bigquery client.
+bq_client = client.discovered_api('bigquery', 'v2')
+
+p bq_client
