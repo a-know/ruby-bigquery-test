@@ -11,4 +11,7 @@ client = Google::APIClient.new(
 # Initialize Bigquery client.
 bq_client = client.discovered_api('bigquery', 'v2')
 
+# Load client secrets from your client_secrets.json.
+client_secrets = Google::APIClient::ClientSecrets.load
+
 p bq_client
