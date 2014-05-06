@@ -1,6 +1,11 @@
 require 'bundler/setup'
 require 'google/api_client'
 require 'yaml'
+require 'json'
+
+def multipart_boundary
+  '--xxx'
+end
 
 # load credential yaml
 oauth_yaml = YAML.load_file('.google-api.yaml')
@@ -18,38 +23,52 @@ client.authorization.access_token = oauth_yaml["access_token"]
 # Initialize Bigquery client.
 bq_client = client.discovered_api('bigquery', 'v2')
 
+job_config = {
+  'configuration' => {
+    'load' => {
+      'sourceUris' => ['gs://a-know-df-test/sample.csv'],
+      'schema' => {
+        'fields' => [
+          {
+            'name' => 'id',
+            'type' => 'INTEGER'
+          },
+          {
+            'name' => 'name',
+            'type' => 'STRING'
+          },
+          {
+            'name' => 'price',
+            'type' => 'INTEGER'
+          },
+        ]
+      },
+      'destinationTable' => {
+        'projectId' => 'df-test-001',
+        'datasetId' => 'df_test',
+        'tableId'   => 'sample'
+      },
+      'createDisposition' => 'CREATE_NEVER',
+      'writeDisposition' => 'WRITE_APPEND'
+    }
+  }
+}
+
+body = "#{multipart_boundary}\n"
+body += "Content-Type: application/json; charset=UTF-8\n"
+body += "\n"
+body += "#{job_config.to_json}\n"
+body += "#{multipart_boundary}--\n"
+
 # Make an API call.
 result = client.execute(
   :api_method => bq_client.jobs.insert,
   :parameters => {
     'projectId' => '234230709110',
-    'configuration' => {
-      'load' => {
-        'sourceUris' => ['gs://a-know-df-test/sample.csv'],
-        'schema' => {
-          'fields' => [
-            {
-              'name' => 'id',
-              'type' => 'INTEGER'
-            },
-            {
-              'name' => 'name',
-              'type' => 'STRING'
-            },
-            {
-              'name' => 'price',
-              'type' => 'INTEGER'
-            },
-          ]
-        },
-        'destinationTable' => {
-          'projectId' => 'df-test-001',
-          'datasetId' => 'df_test',
-          'tableId'   => 'sample'
-        },
-      }
-    }
-  }
+    'uploadType' => 'multipart'
+  },
+  :body => body,
+  :headers => { 'Content-Type' => "multipart/related; boundary=xxx" }
 )
 
 
