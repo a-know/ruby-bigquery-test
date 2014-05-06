@@ -4,7 +4,7 @@ require 'yaml'
 require 'json'
 
 def multipart_boundary
-  '--xxx'
+  'xxx'
 end
 
 # load credential yaml
@@ -54,11 +54,11 @@ job_config = {
   }
 }
 
-body = "#{multipart_boundary}\n"
+body = "--#{multipart_boundary}\n"
 body += "Content-Type: application/json; charset=UTF-8\n"
 body += "\n"
 body += "#{job_config.to_json}\n"
-body += "#{multipart_boundary}--\n"
+body += "--#{multipart_boundary}--\n"
 
 # Make an API call.
 result = client.execute(
@@ -68,7 +68,7 @@ result = client.execute(
     'uploadType' => 'multipart'
   },
   :body => body,
-  :headers => { 'Content-Type' => "multipart/related; boundary=xxx" }
+  :headers => { 'Content-Type' => "multipart/related; boundary=#{multipart_boundary}" }
 )
 
 
