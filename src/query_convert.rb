@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'bundler/setup'
 require 'google/api_client'
 require 'yaml'
@@ -5,6 +7,17 @@ require 'json'
 
 def multipart_boundary
   'xxx'
+end
+
+def query
+  <<"EOS"
+SELECT CASE
+WHEN df_test.sample.price <= 100 THEN '小'
+WHEN df_test.sample.price <= 200 THEN '中'
+WHEN df_test.sample.price <= 300 THEN '大'
+ELSE '' END price_class,
+df_test.sample.id, df_test.sample.price, df_test.sample.name + 'さん' FROM [df_test.sample] LIMIT 1000
+EOS
 end
 
 # load credential yaml
@@ -27,7 +40,7 @@ job_config = {
   'configuration' => {
     'query' => {
       'kind' => 'bigquery#queryRequest',
-      'query' => 'select count(*) from sample',
+      'query' => query,
       'maxResults' => 1,
       "defaultDataset" => {
         "datasetId" => 'df_test',
