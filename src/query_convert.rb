@@ -11,11 +11,17 @@ end
 
 def query
   <<"EOS"
-SELECT CASE
+SELECT
+CASE
 WHEN df_test.sample.price <= 100 THEN '小'
 WHEN df_test.sample.price <= 200 THEN '中'
 WHEN df_test.sample.price <= 300 THEN '大'
 ELSE '' END price_class,
+
+CASE
+WHEN df_test.sample.name like '%a-%' THEN '本人'
+ELSE '' END who,
+
 df_test.sample.id, df_test.sample.price, df_test.sample.name + 'さん' FROM [df_test.sample] LIMIT 1000
 EOS
 end
