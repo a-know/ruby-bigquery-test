@@ -3,9 +3,18 @@ require 'google/api_client'
 require 'yaml'
 require 'json'
 
+# export BigQuery table to Google Cloud Storage
+# USAGE : ruby src/export_table.rb df-test-001:_0ed32dfe680c6b0634a2d8aa78fd3b270620f500.anonev_xzJPsRUruwN69f5rf_EvrMEPr1s export01.csv
+
 def multipart_boundary
   'xxx'
 end
+
+# destination table id
+dest_table_id = ARGV.shift
+
+# export file name
+export_file_name = ARGV.shift
 
 # load credential yaml
 oauth_yaml = YAML.load_file('.google-api.yaml')
@@ -23,34 +32,21 @@ client.authorization.access_token = oauth_yaml["access_token"]
 # Initialize Bigquery client.
 bq_client = client.discovered_api('bigquery', 'v2')
 
+dest_project_id = dest_table_id.split(':')[0]
+dest_dataset_id = dest_table_id.split(':')[1].split('.')[0]
+dest_table_id   = dest_table_id.split(':')[1].split('.')[1]
+
 job_config = {
   'configuration' => {
-    'load' => {
-      'sourceUris' => ['gs://a-know-df-test/sample.csv'],
-      'schema' => {
-        'fields' => [
-          {
-            'name' => 'id',
-            'type' => 'INTEGER'
-          },
-          {
-            'name' => 'name',
-            'type' => 'STRING'
-          },
-          {
-            'name' => 'price',
-            'type' => 'INTEGER'
-          },
-        ]
-      },
-      'destinationTable' => {
-        'projectId' => 'df-test-001',
-        'datasetId' => 'df_test',
-        'tableId'   => 'sample'
-      },
-      'createDisposition' => 'CREATE_NEVER',
-      'writeDisposition' => 'WRITE_APPEND'
-    }
+    'extract' => {
+      'sourceTable' => {
+         'projectId' => dest_project_id,
+         'datasetId' => dest_dataset_id,
+         'tableId'   =>   dest_table_id
+       },
+      'destinationUris'   => ["gs://a-know-df-test/#{export_file_name}"],
+      'destinationFormat' => 'CSV'
+     }
   }
 }
 
@@ -87,5 +83,3 @@ while(true) do
   )
   sleep(10)
 end
-
-puts result.response.body
