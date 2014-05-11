@@ -11,7 +11,6 @@ client = Google::APIClient.new(
  
 # Run installed application flow. Check the samples for a more
 # complete example that saves the credentials between runs.
-# credential = File.read('client_secrets.txt').split(',')
 credential = Google::APIClient::ClientSecrets.load
  
  
