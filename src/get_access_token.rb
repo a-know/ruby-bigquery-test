@@ -1,4 +1,5 @@
 require 'bundler/setup'
+require 'yaml'
 require 'google/api_client'
 require 'google/api_client/client_secrets'
 require 'google/api_client/auth/installed_app'
@@ -22,3 +23,16 @@ flow = Google::APIClient::InstalledAppFlow.new(
 client.authorization = flow.authorize
  
 p client.authorization
+
+yml = {}.tap do |y|
+  y['mechanism']     = 'oauth_2'
+  y['scope']         = client.authorization.scope
+  y['client_id']     = client.authorization.client_id
+  y['client_secret'] = client.authorization.client_secret
+  y['access_token']  = client.authorization.access_token
+  y['refresh_token'] = client.authorization.refresh_token
+end
+
+open('.google-api.yaml','w') do |f|
+  YAML.dump(yml,f)
+end
