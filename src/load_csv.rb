@@ -71,6 +71,21 @@ result = client.execute(
   :headers => { 'Content-Type' => "multipart/related; boundary=#{multipart_boundary}" }
 )
 
+puts result.response.body
 
-puts result.data
+while(true) do
+  res = JSON.parse(result.response.body)
+  p state = res['status']['state']
+  break if state == 'DONE'
+
+  result = client.execute(
+    :api_method => bq_client.jobs.get,
+    :parameters => {
+      'projectId' => '234230709110',
+      'jobId' => res['jobReference']['jobId']
+    }
+  )
+  sleep(10)
+end
+
 puts result.response.body
