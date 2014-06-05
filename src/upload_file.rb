@@ -9,8 +9,8 @@ credential_yaml = YAML.load_file('.gcs-credential.yaml')
 # create a connection
 connection = Fog::Storage.new({
   :provider                         => 'Google',
-  :google_storage_access_key_id     => oauth_yaml["google_storage_access_key_id"],
-  :google_storage_secret_access_key => oauth_yaml["google_storage_secret_access_key"],
+  :google_storage_access_key_id     => credential_yaml['google_storage_access_key_id'],
+  :google_storage_secret_access_key => credential_yaml['google_storage_secret_access_key'],
 })
 
 # First, a place to contain the glorious details
