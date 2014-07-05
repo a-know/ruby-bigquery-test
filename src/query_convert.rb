@@ -12,6 +12,11 @@ end
 def query
   <<"EOS"
 SELECT
+df_test.sample.id,
+df_test.sample.price,
+df_test.sample.name + 'さん',
+df_test.rubi.rubi as rubi,
+
 CASE
 WHEN df_test.sample.price <= 100 THEN '小'
 WHEN df_test.sample.price <= 200 THEN '中'
@@ -20,12 +25,7 @@ ELSE '' END price_class,
 
 CASE
 WHEN df_test.sample.name like '%a-%' THEN '本人'
-ELSE '' END who,
-
-df_test.sample.id,
-df_test.sample.price,
-df_test.sample.name + 'さん',
-df_test.rubi.rubi as rubi
+ELSE '' END who
 
 FROM [df_test.sample]
 JOIN [df_test.rubi]

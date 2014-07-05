@@ -48,7 +48,7 @@ job_config = {
         'datasetId' => 'df_test',
         'tableId'   => 'sample'
       },
-      'createDisposition' => 'CREATE_NEVER',
+      'createDisposition' => 'CREATE_IF_NEEDED',
       'writeDisposition' => 'WRITE_APPEND'
     }
   }
